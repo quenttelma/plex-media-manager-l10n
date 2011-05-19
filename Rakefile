@@ -42,11 +42,13 @@ end
 
 task :build => localizations.map {|localization| localization.xstrings }
 
-task :status do
+desc "Check the localization status of all languages or for a specific language"
+task :status, :lang do |t, args|
   UI.run_pager
 
   localizations.each do |localization|
     next if localization == default_localization
+    next if args.lang && args.lang != localization.code
 
     untranslated = []
     localization.data.each {|t| untranslated << t if t.original == t.translated }
