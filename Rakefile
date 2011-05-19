@@ -18,7 +18,7 @@ default_localization = Localization['en']
 
 file Localization['xx-chef'].strings => default_localization.strings do
   in_root do
-    system %{bin/auto-translate xx-chef vendor/chef}
+    system 'bin/auto-translate', 'xx-chef', 'vendor/chef'
     UI.abort "Unable to auto-translate Swedish Chef strings. Perhaps vendor/chef is compiled for the wrong architecture?" unless $?.success?
   end
 end
@@ -26,7 +26,7 @@ end
 localizations.each do |localization|
   file localization.xstrings => localization.strings do
     UI.status %{Updating XML for #{localization.code}}
-    system %{plutil -convert xml1 "#{localization.strings}" -o "#{localization.xstrings}"}
+    system 'plutil', '-convert', 'xml1', localization.strings, '-o', localization.xstrings
     UI.abort "Unable to convert #{localization.strings} to XML. Is plutil installed?" unless $?.success?
   end
 
@@ -34,7 +34,7 @@ localizations.each do |localization|
 
   file localization.strings => default_localization.strings do
     in_root do
-      system %{bin/rebase #{localization.code}}
+      system 'bin/rebase', localization.code
       UI.abort "Unable to rebase #{localization.code}" unless $?.success?
     end
   end
@@ -103,7 +103,7 @@ task :default => :build
 
 file 'lib/l10n/translation_parser.rb' => 'lib/l10n/translation_parser.rl' do |f|
   UI.status "Generating strings file parser"
-  system %{ragel -R #{f.prerequisites.first}}
+  system 'ragel', '-R', f.prerequisites.first
 end
 
 namespace :dev do
